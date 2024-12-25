@@ -1,3 +1,5 @@
+// app/page.tsx
+
 import { Suspense } from 'react'
 import Search from '../components/Search'
 import Result from '../components/Result'

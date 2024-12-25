@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'img.pokemondb.net',
-        port: '', // ถ้าไม่มี port ระบุให้ใส่เป็นค่าว่าง
-        pathname: '/**', // อนุญาตทุก path ภายใต้ hostname นี้
+        port: '', 
+        pathname: '/**', 
       },
     ],
   },

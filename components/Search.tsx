@@ -21,6 +21,8 @@ export default function Search() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     router.push(`/?name=${encodeURIComponent(search)}`)
+    // Add this line to trigger a re-render of the parent component
+    window.dispatchEvent(new Event('pokemonSearched'))
   }
 
   return (

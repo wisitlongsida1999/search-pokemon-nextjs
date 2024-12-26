@@ -11,8 +11,8 @@ import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
 
 export default function Home() {
-  const searchParams = useSearchParams()
-  const pokemonName = searchParams.get('name')
+  // const searchParams = useSearchParams()
+  // const pokemonName = searchParams.get('name')
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -49,20 +49,30 @@ export default function Home() {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <ApolloWrapper>
-          <Suspense fallback={
-            <div className="flex justify-center items-center h-32">
-              <motion.div 
-                className="h-12 w-12 border-t-2 border-b-2 border-blue-500 rounded-full"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              />
-            </div>
-          }>
-            {pokemonName ? <Result name={pokemonName} /> : <Search />}
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center h-32">
+                <motion.div 
+                  className="h-12 w-12 border-t-2 border-b-2 border-blue-500 rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
+            }
+          >
+            <SearchParamsWrapper />
           </Suspense>
         </ApolloWrapper>
       </motion.div>
     </main>
   )
 }
+
+function SearchParamsWrapper() {
+  const searchParams = useSearchParams()
+  const pokemonName = searchParams.get('name')
+
+  return pokemonName ? <Result name={pokemonName} /> : <Search />
+}
+
 

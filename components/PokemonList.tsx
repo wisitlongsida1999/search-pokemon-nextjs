@@ -2,27 +2,23 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useQuery } from '@apollo/client'
-import { GET_ALL_POKEMONS } from '../lib/queries'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const TOTAL_POKEMONS = 151 // Assuming we want to fetch all original 151 Pokémon
+interface Pokemon {
+  id: string
+  name: string
+  image: string
+  types: string[]
+}
 
-export default function PokemonList() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const { loading, error, data } = useQuery(GET_ALL_POKEMONS, {
-    variables: { first: TOTAL_POKEMONS },
-  })
+interface PokemonListProps {
+  loading: boolean
+  pokemons: Pokemon[]
+}
 
-  const filteredPokemons = data?.pokemons.filter((pokemon: any) =>
-    pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || []
-
-  if (error) return <p className="text-center text-red-500" role="alert">Error: {error.message}</p>
-
+export default function PokemonList({ loading, pokemons }: PokemonListProps) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
@@ -35,15 +31,6 @@ export default function PokemonList() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search Pokémon..."
-          className="w-full p-2 border border-gray-300 rounded-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
       {loading ? (
         <div className="flex justify-center items-center h-64" aria-live="polite" aria-busy="true">
           <motion.div 
@@ -60,7 +47,7 @@ export default function PokemonList() {
           animate="visible"
         >
           <AnimatePresence>
-            {filteredPokemons.map((pokemon: any) => (
+            {pokemons.map((pokemon) => (
               <motion.div key={`${pokemon.id}-${pokemon.name}`} variants={itemVariants} layout>
                 <Link href={`/?name=${pokemon.name}`}>
                   <motion.div 
@@ -87,5 +74,4 @@ export default function PokemonList() {
     </div>
   )
 }
-
 

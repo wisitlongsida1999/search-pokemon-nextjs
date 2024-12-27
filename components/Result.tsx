@@ -1,22 +1,32 @@
 // components/Result.tsx
+
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useQuery } from '@apollo/client'
-import { GET_POKEMON } from '../lib/queries'
+import { GET_POKEMON, GET_ALL_POKEMONS } from '../lib/queries'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SearchIcon, ArrowRight } from 'lucide-react'
+import { useDebounce } from '../hooks/useDebounce'
+
+const TOTAL_POKEMONS = 151
 
 export default function Result({ name }: { name: string }) {
   const [search, setSearch] = useState(name)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const debouncedSearch = useDebounce(search, 300)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const { loading, error, data } = useQuery(GET_POKEMON, {
     variables: { name },
-  });
+  })
+  const { data: allPokemonData } = useQuery(GET_ALL_POKEMONS, {
+    variables: { first: TOTAL_POKEMONS },
+  })
 
   useEffect(() => {
     const pokemonName = searchParams.get('name')
@@ -25,20 +35,43 @@ export default function Result({ name }: { name: string }) {
     }
   }, [searchParams])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     router.push(`/?name=${encodeURIComponent(search)}`)
+    setShowDropdown(false)
   }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value)
+    setShowDropdown(true)
+  }
+
+  const filteredPokemons = allPokemonData?.pokemons.filter((pokemon: any) =>
+    pokemon.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+  ) || []
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
+  }
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
-  };
+  }
 
   return (
     <motion.div 
@@ -50,7 +83,7 @@ export default function Result({ name }: { name: string }) {
       <div className="p-6">
         <motion.form 
           onSubmit={handleSearch} 
-          className="mb-6"
+          className="mb-6 relative"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
@@ -59,7 +92,8 @@ export default function Result({ name }: { name: string }) {
             <motion.input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleInputChange}
+              onFocus={() => setShowDropdown(true)}
               placeholder="Search Pokémon"
               className="w-full px-4 py-2 pl-10 pr-4 text-white bg-gray-700 border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               whileFocus={{ scale: 1.02 }}
@@ -67,6 +101,32 @@ export default function Result({ name }: { name: string }) {
             />
             <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
+          <AnimatePresence>
+            {showDropdown && filteredPokemons.length > 0 && (
+              <motion.div
+                ref={dropdownRef}
+                className="absolute z-10 w-full mt-1 bg-gray-700 rounded-md shadow-lg max-h-60 overflow-auto"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {filteredPokemons.map((pokemon: any) => (
+                  <div
+                    key={pokemon.id}
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-600 text-white"
+                    onClick={() => {
+                      setSearch(pokemon.name)
+                      setShowDropdown(false)
+                      router.push(`/?name=${encodeURIComponent(pokemon.name)}`)
+                    }}
+                  >
+                    {pokemon.name}
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <motion.button
             type="submit"
             className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
@@ -214,11 +274,9 @@ function AttackList({ title, attacks }: { title: string, attacks: any[] }) {
   )
 }
 
-
 function EvolutionChain({ pokemon }: { pokemon: any }) {
   const renderEvolution = (evo: any, level: number) => {
-    // Create a unique key using both id and level to prevent duplicates
-    const key = `${evo.id}-${level}`;
+    const key = `${evo.id}-${level}`
     
     return (
       <div key={key} className="flex flex-row items-center justify-center">
@@ -231,13 +289,12 @@ function EvolutionChain({ pokemon }: { pokemon: any }) {
                 {evo.evolutionRequirements?.amount} {evo.evolutionRequirements?.name}
               </p>
             </div>
-            {/* Only render the first evolution to prevent duplicates */}
             {renderEvolution(evo.evolutions[0], level + 1)}
           </>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <div className="w-full overflow-x-auto">
@@ -245,12 +302,12 @@ function EvolutionChain({ pokemon }: { pokemon: any }) {
         {renderEvolution(pokemon, 0)}
       </div>
     </div>
-  );
+  )
 }
 
 function EvolutionCard({ evolution, isCurrent }: { evolution: any, isCurrent: boolean }) {
-  const borderColor = isCurrent ? 'border-yellow-400' : 'border-blue-400';
-  const bgColor = isCurrent ? 'bg-gray-600' : 'bg-gray-700';
+  const borderColor = isCurrent ? 'border-yellow-400' : 'border-blue-400'
+  const bgColor = isCurrent ? 'bg-gray-600' : 'bg-gray-700'
 
   return (
     <Link href={`/?name=${evolution.name}`}>
@@ -270,6 +327,6 @@ function EvolutionCard({ evolution, isCurrent }: { evolution: any, isCurrent: bo
         {isCurrent && <p className="text-xs text-yellow-400">Current</p>}
       </motion.div>
     </Link>
-  );
+  )
 }
 

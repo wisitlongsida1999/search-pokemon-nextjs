@@ -1,5 +1,4 @@
 // components/Result.tsx
-
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -9,7 +8,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { SearchIcon } from 'lucide-react'
+import { SearchIcon, ArrowRight } from 'lucide-react'
 
 export default function Result({ name }: { name: string }) {
   const [search, setSearch] = useState(name)
@@ -156,30 +155,13 @@ export default function Result({ name }: { name: string }) {
                   className="text-2xl font-semibold mt-6 mb-4 text-white"
                   variants={itemVariants}
                 >
-                  Evolutions
+                  Evolution Chain
                 </motion.h3>
                 <motion.div 
-                  className="grid grid-cols-3 gap-4"
+                  className="flex flex-wrap justify-center items-center gap-4"
                   variants={containerVariants}
                 >
-                  {data.pokemon.evolutions.map((evolution: any) => (
-                    <Link href={`/?name=${evolution.name}`} key={evolution.id}>
-                      <motion.div
-                        className="bg-gray-700 p-3 rounded-lg text-center"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Image
-                          src={evolution.image}
-                          alt={evolution.name}
-                          width={100}
-                          height={100}
-                          className="mx-auto rounded-full border-2 border-yellow-400"
-                        />
-                        <p className="mt-2 font-semibold text-white">{evolution.name}</p>
-                      </motion.div>
-                    </Link>
-                  ))}
+                  <EvolutionChain pokemon={data.pokemon} />
                 </motion.div>
               </>
             )}
@@ -233,4 +215,61 @@ function AttackList({ title, attacks }: { title: string, attacks: any[] }) {
 }
 
 
+function EvolutionChain({ pokemon }: { pokemon: any }) {
+  const renderEvolution = (evo: any, level: number) => {
+    // Create a unique key using both id and level to prevent duplicates
+    const key = `${evo.id}-${level}`;
+    
+    return (
+      <div key={key} className="flex flex-row items-center justify-center">
+        <EvolutionCard evolution={evo} isCurrent={level === 0} />
+        {evo.evolutions && evo.evolutions.length > 0 && (
+          <>
+            <div className="flex flex-col items-center mx-4">
+              <ArrowRight className="text-blue-400" size={24} />
+              <p className="text-sm text-gray-400 text-center">
+                {evo.evolutionRequirements?.amount} {evo.evolutionRequirements?.name}
+              </p>
+            </div>
+            {/* Only render the first evolution to prevent duplicates */}
+            {renderEvolution(evo.evolutions[0], level + 1)}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <div className="flex justify-start min-w-max px-4">
+        {renderEvolution(pokemon, 0)}
+      </div>
+    </div>
+  );
+}
+
+function EvolutionCard({ evolution, isCurrent }: { evolution: any, isCurrent: boolean }) {
+  const borderColor = isCurrent ? 'border-yellow-400' : 'border-blue-400';
+  const bgColor = isCurrent ? 'bg-gray-600' : 'bg-gray-700';
+
+  return (
+    <Link href={`/?name=${evolution.name}`}>
+      <motion.div
+        className={`${bgColor} p-3 rounded-lg text-center min-w-[120px]`}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <Image
+          src={evolution.image}
+          alt={evolution.name}
+          width={80}
+          height={80}
+          className={`mx-auto rounded-full border-2 ${borderColor}`}
+        />
+        <p className="mt-2 font-semibold text-white">{evolution.name}</p>
+        {isCurrent && <p className="text-xs text-yellow-400">Current</p>}
+      </motion.div>
+    </Link>
+  );
+}
 

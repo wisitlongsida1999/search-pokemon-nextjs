@@ -66,7 +66,16 @@ export default function PokemonList({ loading, pokemons }: PokemonListProps) {
                       />
                     </div>
                     <h3 className="text-white font-semibold text-lg">{pokemon.name}</h3>
-                    <p className="text-gray-400 text-sm">{pokemon.types.join(', ')}</p>
+                    <div className="flex flex-wrap justify-center gap-1 mt-2">
+                      {pokemon.types.map((type) => (
+                        <span
+                          key={type}
+                          className="px-2 py-1 text-xs font-medium rounded-full bg-pink-600 text-white"
+                        >
+                          {type}
+                        </span>
+                      ))}
+                    </div>
                   </motion.div>
                 </Link>
               </motion.div>

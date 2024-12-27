@@ -3,19 +3,35 @@
 'use client'
 
 import { Suspense } from 'react'
+import Link from 'next/link'
 import Search from '../components/Search'
 import Result from '../components/Result'
 import { ApolloWrapper } from '../lib/apollo-wrapper'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useSearchParams } from 'next/navigation'
+import { HomeIcon } from 'lucide-react'
 
-export default function Home() {
-  // const searchParams = useSearchParams()
-  // const pokemonName = searchParams.get('name')
-
+export default function HomePage() {
   return (
     <main className="container mx-auto px-4 py-8">
+      <motion.div 
+        className="flex justify-end mb-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Link href="/">
+          <motion.button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full flex items-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <HomeIcon className="mr-2" size={20} />
+            Home
+          </motion.button>
+        </Link>
+      </motion.div>
       <motion.div 
         className="flex items-center justify-center mb-10"
         initial={{ opacity: 0, y: -50 }}
@@ -74,5 +90,4 @@ function SearchParamsWrapper() {
 
   return pokemonName ? <Result name={pokemonName} /> : <Search />
 }
-
 

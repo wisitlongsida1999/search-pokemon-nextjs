@@ -4,16 +4,23 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { SearchIcon } from 'lucide-react'
+import { SearchIcon, X } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useQuery } from '@apollo/client'
 import { GET_ALL_POKEMONS } from '../lib/queries'
 import PokemonList from './PokemonList'
+import * as ToggleGroup from '@radix-ui/react-toggle-group'
 
 const TOTAL_POKEMONS = 151
 
+const pokemonTypes = [
+  'Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground',
+  'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'
+]
+
 export default function Search() {
   const [search, setSearch] = useState('')
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const router = useRouter()
   const searchParams = useSearchParams()
   const { loading, error, data } = useQuery(GET_ALL_POKEMONS, {
@@ -22,18 +29,36 @@ export default function Search() {
 
   useEffect(() => {
     const name = searchParams.get('name')
+    const types = searchParams.get('types')
     if (name) {
       setSearch(name)
+    }
+    if (types) {
+      setSelectedTypes(types.split(','))
     }
   }, [searchParams])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    router.push(`/?name=${encodeURIComponent(search)}`)
+    const searchQuery = new URLSearchParams()
+    if (search) searchQuery.set('name', search)
+    if (selectedTypes.length) searchQuery.set('types', selectedTypes.join(','))
+    router.push(`/?${searchQuery.toString()}`)
+  }
+
+  const handleTypeToggle = (types: string[]) => {
+    setSelectedTypes(types)
+  }
+
+  const clearFilters = () => {
+    setSearch('')
+    setSelectedTypes([])
+    router.push('/')
   }
 
   const filteredPokemons = data?.pokemons.filter((pokemon: any) =>
-    pokemon.name.toLowerCase().includes(search.toLowerCase())
+    pokemon.name.toLowerCase().includes(search.toLowerCase()) &&
+    (selectedTypes.length === 0 || selectedTypes.every(type => pokemon.types.includes(type)))
   ) || []
 
   return (
@@ -57,19 +82,58 @@ export default function Search() {
           />
           <SearchIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
-        <motion.button
-          type="submit"
-          className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Search
-        </motion.button>
+        <div className="mt-4 mb-4">
+          <h3 className="text-white font-semibold mb-2">Filter by Type (Intersection)</h3>
+          <ToggleGroup.Root
+            type="multiple"
+            className="flex flex-wrap gap-2"
+            value={selectedTypes}
+            onValueChange={handleTypeToggle}
+          >
+            {pokemonTypes.map((type) => (
+              <ToggleGroup.Item
+                key={type}
+                value={type}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
+                  selectedTypes.includes(type)
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                {type}
+              </ToggleGroup.Item>
+            ))}
+          </ToggleGroup.Root>
+        </div>
+        <div className="flex gap-2">
+          <motion.button
+            type="submit"
+            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Search
+          </motion.button>
+          <motion.button
+            type="button"
+            onClick={clearFilters}
+            className="px-4 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <X className="h-5 w-5" />
+          </motion.button>
+        </div>
       </motion.form>
       {error ? (
         <p className="text-center text-red-500" role="alert">Error: {error.message}</p>
       ) : (
-        <PokemonList loading={loading} pokemons={filteredPokemons} />
+        <>
+          <p className="text-white mb-4">
+            Showing {filteredPokemons.length} of {data?.pokemons.length || 0} Pokémon
+          </p>
+          <PokemonList loading={loading} pokemons={filteredPokemons} />
+        </>
       )}
     </div>
   )

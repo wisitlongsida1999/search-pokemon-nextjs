@@ -1,5 +1,4 @@
-// lib/queries.ts
-
+//lib/queries.ts
 
 import { gql } from "@apollo/client";
 
@@ -42,11 +41,38 @@ export const GET_POKEMON = gql`
         number
         name
         image
+        evolutionRequirements {
+          amount
+          name
+        }
+        evolutions {
+          id
+          number
+          name
+          image
+          evolutionRequirements {
+            amount
+            name
+          }
+          evolutions {
+            id
+            number
+            name
+            image
+            evolutionRequirements {
+              amount
+              name
+            }
+          }
+        }
+      }
+      evolutionRequirements {
+        amount
+        name
       }
     }
   }
 `;
-
 
 export const GET_ALL_POKEMONS = gql`
   query pokemons($first: Int!) {
@@ -59,3 +85,4 @@ export const GET_ALL_POKEMONS = gql`
     }
   }
 `;
+

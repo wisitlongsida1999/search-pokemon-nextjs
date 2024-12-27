@@ -55,13 +55,16 @@ export default function PokemonList({ loading, pokemons }: PokemonListProps) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Image
-                      src={pokemon.image}
-                      alt={pokemon.name}
-                      width={100}
-                      height={100}
-                      className="mx-auto mb-2"
-                    />
+                    <div className="w-24 h-24 mx-auto mb-2 relative">
+                      <Image
+                        src={pokemon.image}
+                        alt={pokemon.name}
+                        fill
+                        sizes="(max-width: 768px) 96px, 96px"
+                        className="object-contain"
+                        priority
+                      />
+                    </div>
                     <h3 className="text-white font-semibold text-lg">{pokemon.name}</h3>
                     <p className="text-gray-400 text-sm">{pokemon.types.join(', ')}</p>
                   </motion.div>

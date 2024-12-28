@@ -26,59 +26,67 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ### Required Stacks
 
-- **Framework:** Next.js (TypeScript)
-- **Backend Communication:** GraphQL
-- **Application Name:** `search-pokemon`
+- **Framework:** Next.js (TypeScript) 🎨
+- **Backend Communication:** GraphQL 🔄
+- **Application Name:** `search-pokemon` 🐾
 
 ### Application Features
 
-1. **Data Source**
+1. **Data Source** 📊
    - The application uses a Pokémon GraphQL API as its data source. You can interact with the API using the [GraphiQL Debugger](https://graphiql.graphql.org/) to build and test queries efficiently.
 
-2. **Pokemon Interface**
+2. **Pokemon Interface** ⚡
    - The Pokémon interface should include attributes for attacks and evolutions as defined by the schema in the API.
 
-3. **Search Input Component**
+3. **Search Input Component** 🔍
    - A component that searches the Pokémon API by name.
    - Reads the state of a search query parameter from the URL.
 
-4. **Result Component**
+4. **Result Component** 📈
    - Displays all relevant information about the searched Pokémon or a "Not Found" view.
    - Includes details on Pokémon attacks and evolutions.
    - Clicking the name of an evolution updates the search query parameter in the URL and displays the result for the evolution.
 
-
 ### Development Goals
 
 - **Developer Focus:**
-  - Use Next.js, React, Apollo optimization.
-  - Utilize caching and static optimization.
-  - Use path parameters and Next.js routing effectively.
-  - Optimize performance with React libraries.
+  - Use Next.js, React, Apollo optimization. ⚛️
+  - Utilize caching and static optimization. 🧊
+  - Use path parameters and Next.js routing effectively. 🔀
+  - Optimize performance with React libraries. 🚀
 
-## Testing (Optional)
+### Screenshots
+
+#### Home Page 🏠
+![Home Page](./screenshots/home.png)
+
+#### Result Page 🌐
+![Result Page](./screenshots/result.png)
+
+## Testing (Optional) 🧪
 
 In the same application, create a test suite using the included Jest framework.
 
-1. **Test Mocks**
+1. **Test Mocks** 🐾
    - Create test mocks for the following Pokémon:
-     - **Bulbasaur** (Grass)
-     - **Charmander** (Fire)
-     - **Squirtle** (Water)
+     - **Bulbasaur** (Grass 🌱)
+     - **Charmander** (Fire 🔥)
+     - **Squirtle** (Water 🌊)
 
-2. **Test Suite**
-   - Write tests that assert each Pokémon's type is correct (e.g., Grass for Bulbasaur, Fire for Charmander, Water for Squirtle).
+2. **Test Suite** 📋
+   - Write tests that assert each Pokémon's type is correct (e.g., Grass 🌱 for Bulbasaur, Fire 🔥 for Charmander, Water 🌊 for Squirtle).
 
-## Learn More
+## Learn More 📚
 
 To learn more about Next.js and its ecosystem, explore the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - An interactive Next.js tutorial.
-- [Next.js GitHub Repository](https://github.com/vercel/next.js) - Your feedback and contributions are welcome!
+- [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API. 🧑‍💻
+- [Learn Next.js](https://nextjs.org/learn) - An interactive Next.js tutorial. 📖
+- [Next.js GitHub Repository](https://github.com/vercel/next.js) - Your feedback and contributions are welcome! 🌟
 
-## Deploy on Vercel
+## Deploy on Vercel 🌍
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details. 📜
+

@@ -39,6 +39,15 @@ const mocks = [
   },
 ];
 
+// Mock the useRouter and useSearchParams hooks
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+  useSearchParams: () => ({
+    get: jest.fn(),
+  }),
+}));
 
 describe('Result Component', () => {
   it('renders loading state', () => {
@@ -47,7 +56,7 @@ describe('Result Component', () => {
         <Result name="Pikachu" />
       </MockedProvider>
     )
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('Loading...')
   })
 
   it('renders Pokémon data after loading', async () => {
@@ -87,7 +96,7 @@ describe('Result Component', () => {
       </MockedProvider>
     )
 
-    const errorMessage = await screen.findByText('An error occurred: An error occurred')
+    const errorMessage = await screen.findByText('An error occurred while searching for "InvalidPokemon".')
     expect(errorMessage).toBeInTheDocument()
   })
 })
